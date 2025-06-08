@@ -474,7 +474,8 @@ async function clientstart() {
             const budy = (typeof m.text === 'string' ? m.text : '');
 
             const prefixRegex = new RegExp(`^(${global.prefix.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`);
-            const isCmd = body.startsWith(prefixRegex);
+const isCmd = prefixRegex.test(body);
+
             const prefix = isCmd ? body.match(prefixRegex)[0] : '';
 
             const from = m.key.remoteJid;
