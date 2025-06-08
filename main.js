@@ -94,7 +94,7 @@ function tanggal(numer) {
     let thisDay = d.getDay();
     let thisMonth = myMonths[month];
     let yy = d.getYear();
-    let year = (yy < 1000) ? yy + 1900 : year; // Perbaikan: (yy < 1000) ? yy + 1900 : yy; -> (yy < 1000) ? yy + 1900 : year;
+    let year = (yy < 1000) ? yy + 1900 : year;
     let waktu = moment().tz('Asia/Jakarta').format('HH:mm:ss');
     return `${myDays[thisDay]}, ${day} ${thisMonth} ${year} Pukul ${waktu} WIB`;
 }
@@ -228,11 +228,11 @@ async function ytmp3(url) {
       }
 
       let info = {};
-      for (let i = 0; i < 5; i++) { 
+      for (let i = 0; i < 5; i++) {
         const j = await fetch(convert.progressURL, { headers });
         info = await j.json();
         if (info.progress === 3) break;
-        await new Promise(res => setTimeout(res, 2000)); 
+        await new Promise(res => setTimeout(res, 2000));
       }
 
       if (info.progress !== 3) {
@@ -311,15 +311,6 @@ function formatSize(bytes) {
 }
 
 
-// Tambahkan fungsi ke client
-const clientExtension = {
-    sendImageAsSticker,
-    sendVideoAsSticker,
-    // ... bisa ditambahkan fungsi-fungsi lain dari myfunction.js
-};
-Object.assign(makeWASocket.prototype, clientExtension);
-
-
 async function clientstart() {
     const {
         state,
@@ -349,6 +340,15 @@ async function clientstart() {
             })),
         }
     });
+
+    // PENTING: Pindahkan baris Object.assign di sini
+    const clientExtension = {
+        sendImageAsSticker,
+        sendVideoAsSticker,
+        // ... bisa ditambahkan fungsi-fungsi lain dari myfunction.js
+    };
+    Object.assign(makeWASocket.prototype, clientExtension);
+
 
     if (usePairingCode && !client.authState.creds.registered) {
         const phoneNumber = global.owner;
@@ -521,10 +521,10 @@ async function clientstart() {
                 botNumber, isCreator, groupId: from, groupMetadata, groupName, participants,
                 groupAdmins, isBotAdmin, isGroupAdmin, isOwner, Access, reply, store,
                 util, fs, os, fetch, moment, chalk, tanggal, getBuffer, axios,
-                runtime, formatp: formatSize, isUrl, // formatp diganti formatSize
-                execPromise, exec, execSync, getContentType, // Menambahkan getContentType dan execPromise
-                dino: client, // client diberikan alias dino
-                remini, igdl, ytmp3 // Menambahkan fungsi-fungsi yang digabung
+                runtime, formatp: formatSize, isUrl,
+                execPromise, exec, execSync, getContentType,
+                dino: client,
+                remini, igdl, ytmp3
             };
 
             // Panggil handleCaseCommands
@@ -548,53 +548,26 @@ require('fs').watchFile(file, () => {
 });
 
 
-// Konten case.js yang digabungkan (akan dipanggil sebagai module.exports dari file case.js terpisah)
-// Namun karena yuwwww ingin menggabungkan jadi satu file, Genta akan menyertakannya sebagai fungsi terpisah
-// yang dipanggil dari main event handler.
-// Ini adalah isi dari `case.js` yang akan dipanggil dari `message.js` (bagian `client.ev.on('messages.upsert')`)
-// Untuk memudahkan, Genta jadikan ini sebagai fungsi yang diekspor dari file `case.js`
-// Dan di dalam `message.js` akan memanggil `require('./case')(client, context)`
-// Karena yuwwww meminta untuk digabungkan, Genta akan menempatkan logikanya langsung di sini,
-// tapi dalam skenario pengembangan nyata, akan lebih baik tetap dipisah.
-
-/*
-𝗦𝗰𝗿𝗶𝗽𝘁 𝗶𝗻𝗶 𝗱𝗶 𝗯𝘂𝗮𝘁 𝗼𝗹𝗲𝗵 𝗱𝗶𝗻𝗼 𝘂𝗻𝘁𝘂𝗸 𝗺𝗲𝗺𝗯𝗮𝗻𝘁𝘂 𝗽𝗲𝗻𝗴𝗴𝘂𝗻𝗮 𝗱𝗮𝗹𝗮𝗺 𝗯𝗲𝗹𝗮𝗷𝗮𝗿
-𝗺𝗲𝗻𝗴𝗲𝗻𝗮𝗶 𝗯𝗼𝘁 𝘄𝗵𝗮𝘁𝘀𝗮𝗽𝗽 𝗱𝗲𝗻𝗴𝗮𝗻 𝗶𝘀𝗶 𝘆𝗮𝗻𝗴 𝘀𝗶𝗺𝗽𝗹𝗲 𝗱𝗮𝗻 𝗺𝘂𝗱𝗮𝗵 𝗱𝗶 𝗽𝗮𝗵𝗮𝗺𝗶
-
-𝗯𝘂𝘁𝘂𝗵 𝗯𝗮𝗻𝘁𝘂𝗮𝗻? 𝗰𝗵𝗮𝘁 𝗻𝗼𝗺𝗲𝗿 𝗱𝗶 𝗯𝗮𝘄𝗮𝗵
-- 𝗼𝘄𝗻𝗲𝗿 : 𝗗𝗶𝗻𝗼
-- 𝘄𝗮 : 6285602531403
-
-©𝗗𝗶𝗻𝗼𝘀𝗮𝘂𝗿𝘂𝘀
-*/
-
-// Ini adalah fungsi yang merepresentasikan isi dari file `case.js`
-// Dengan asumsi `context` sudah berisi semua variabel yang diperlukan dari `message.js`
 async function handleCaseCommands(dino, context) {
     try {
-        // Ekstrak semua variabel dari objek context
         const {
             m, quoted, body, budy, command, args, q, isCmd, pushname, isGroup, sender,
             botNumber, isCreator, groupId, groupMetadata, groupName, participants,
             groupAdmins, isBotAdmin, isGroupAdmin, isOwner, Access, reply, store,
             util, fs, os, fetch, moment, chalk, tanggal, getBuffer, axios,
             runtime, formatp, isUrl, spawn, exec, execSync, getContentType,
-            remini, igdl, ytmp3 // Pastikan fungsi-fungsi ini di-ekstrak juga
+            remini, igdl, ytmp3
         } = context;
 
-        // Mendapatkan prefix dari global.prefix (diambil dari config.js)
-        const prefix = global.prefix[0]; // Ambil prefix pertama saja jika ada banyak
+        const prefix = global.prefix[0];
 
-        // Variabel yang mungkin didefinisikan ulang atau digunakan secara berbeda
-        const from = m.chat; // Biasanya m.chat digunakan sebagai 'from'
-        const type = getContentType(m.message); // Dari Baileys, sudah ada di message.js
-        const text = m.text; // Text dari pesan
+        const from = m.chat;
+        const type = getContentType(m.message);
+        const text = m.text;
 
         switch (command) {
             case 'menu':
             case 'help':
-                // Menggunakan `global.namaowner` dan `global.prefix` dari config.js
-                // Menggunakan `pushname` dari message.js
                 let menuText = `Halo cintakku, ${pushname}! Saya Genta, bot WhatsApp kesayangan yuwwww. 😊💙
 
 Berikut adalah daftar perintah yang bisa yuwwww gunakan:
@@ -652,9 +625,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 break;
 
             case 'owner':
-                // Menggunakan global.ownerList dari config.js
                 const ownerList = global.ownerList.map(num => ({ jid: num, name: `Owner ${global.namaowner}` }));
-                // Contoh pengiriman kontak
                 dino.sendContact(from, ownerList, m);
                 break;
 
@@ -700,8 +671,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
 
             case 'leave':
                 if (!isCreator) return reply(global.mess.owner);
-                if (!isGroup) return reply(global.mess.group); // Pastikan bot di grup
-                // Jika tidak ada argumen, leave grup saat ini
+                if (!isGroup) return reply(global.mess.group);
                 let targetGroupId = q || from;
                 try {
                     await dino.groupLeave(targetGroupId);
@@ -716,7 +686,6 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 if (!isCreator) return reply(global.mess.owner);
                 if (!isGroup) return reply(global.mess.group);
                 if (!isBotAdmin) return reply('Bot bukan admin, gak bisa kick, sayangkuu. 😭');
-                // Menggunakan `participants` dari context
                 let membersToKick = participants.filter(v => !global.ownerList.includes(v.id) && v.id !== botNumber && !groupAdmins.includes(v.id)).map(v => v.id);
 
                 if (membersToKick.length === 0) {
@@ -724,7 +693,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 }
                 for (let participantId of membersToKick) {
                     await dino.groupParticipantsUpdate(from, [participantId], 'remove');
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Delay biar gak ke-ban
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
                 reply('Semua non-admin berhasil di-kick, duniakuu! 😜');
                 break;
@@ -745,7 +714,6 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
             case 'hidetag':
                 if (!isGroup) return reply(global.mess.group);
                 if (!isGroupAdmin && !isCreator) return reply(global.mess.admin);
-                // Menggunakan `participants` dari context
                 let memberMentions = participants.map(v => v.id);
                 dino.sendMessage(from, { text : q ? q : '', mentions: memberMentions });
                 break;
@@ -901,7 +869,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 if (!isUrl(q) || !q.includes('youtu')) return reply('Linknya gak valid, duniakuu. 😬');
                 try {
                     await reaction(m.chat, "⏳");
-                    let res = await ytmp3(q); // Memanggil fungsi ytmp3 yang sudah digabung
+                    let res = await ytmp3(q);
                     if (res.status && res.data.url) {
                         await dino.sendMessage(from, { audio: { url: res.data.url }, mimetype: 'audio/mpeg', fileName: `${res.data.title}.mp3` }, { quoted: m });
                         reply(`Berhasil mengunduh MP3 dari YouTube, cintakku! Judul: ${res.data.title}`);
@@ -926,7 +894,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 if (!isUrl(q) || !q.includes('instagram.com')) return reply('Linknya gak valid, duniakuu. 😬');
                 try {
                     await reaction(m.chat, "⏳");
-                    let res = await igdl(q); // Memanggil fungsi igdl yang sudah digabung
+                    let res = await igdl(q);
                     if (res.status && res.data.length > 0) {
                         for (let media of res.data) {
                             if (media.type === 'image') {
@@ -951,7 +919,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
 
             case 'ping':
             case 'p':
-                await reply(`Pong! Kecepatan bot: ${speed()} ms`); // Menggunakan speed dari performance-now
+                await reply(`Pong! Kecepatan bot: ${speed()} ms`);
                 break;
 
             case 'runtime':
@@ -975,7 +943,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 statusText += `• Nomor Owner: ${global.ownerList.map(v => v.split('@')[0]).join(', ')}\n`;
                 statusText += `• Prefix: ${global.prefix.join(', ')}\n`;
                 statusText += `• Runtime: ${runtime(process.uptime())}\n`;
-                statusText += `• Total Pesan: ${store.length}\n`; // Menggunakan store.length sebagai contoh
+                statusText += `• Total Pesan: ${store.length}\n`;
                 reply(statusText);
                 break;
 
@@ -1099,7 +1067,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 let img = await imgQ.download?.();
                 let error;
                 try {
-                    const This = await remini(img, "enhance"); // Memanggil fungsi remini yang sudah digabung
+                    const This = await remini(img, "enhance");
                     await reaction(m.chat, "✅");
                     dino.sendMessage(m.chat, {image: This, caption: "```success...```"}, {quoted: m});
                 } catch (er) {
@@ -1116,7 +1084,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
 
             // 𝗘𝗡𝗗 𝗖𝗔𝗦𝗘
             default:
-                if ((budy.match) && ["tes", "bot"].includes(budy.toLowerCase())) { // Pastikan toLowerCase untuk match
+                if ((budy.match) && ["tes", "bot"].includes(budy.toLowerCase())) {
                     reply(`G3N⫹⫺ siap melayani yuwwww, cintakku! 😊`);
                 }
 
@@ -1124,7 +1092,6 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                     reply(`Waalaikumsalam ${pushname} sayangkuu! 🥺`);
                 }
 
-                // Eval dan exec dari case.js asli
                 if (budy.startsWith('=>')) {
                     if (!isCreator) return;
                     function Return(sul) {
@@ -1142,7 +1109,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                     }
                 }
 
-                if (budy.startsWith('>')) { // Eval
+                if (budy.startsWith('>')) {
                     if (!isCreator) return;
                     try {
                         let evaled = await eval(budy.slice(2));
@@ -1155,6 +1122,6 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
 
         }
     } catch (err) {
-        console.error(chalk.red("Error in case.js:"), util.format(err)); // Log error lebih detail
+        console.error(chalk.red("Error in case.js:"), util.format(err));
     }
 }
