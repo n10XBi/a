@@ -27,6 +27,7 @@ const os = require('os');
 const axios = require('axios');
 const util = require('util');
 const speed = require('performance-now');
+const fetch = require('node-fetch'); // Pastikan node-fetch diimpor di sini
 
 const { Boom } = require('@hapi/boom');
 const { exec: execPromise } = require('child_process');
@@ -35,7 +36,6 @@ const { writeFileSync, unlinkSync } = require('fs');
 const { join } = require('path');
 const fileType = require('file-type');
 const FormData = require("form-data"); // Untuk fungsi remini
-const fetch = require('node-fetch'); // Untuk fungsi igdl dan ytmp3
 
 
 // Global settings - originally from config.js
@@ -800,7 +800,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 for (let mem of participants) {
                     teks += `╠➥ @${mem.id.split('@')[0]}\n`
                 }
-                teks += `╚═〘 ${groupName} 〙`
+                teks += `╚═〘 ${groupName} 〘`
                 dino.sendMessage(from, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m });
                 break;
 
