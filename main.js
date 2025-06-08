@@ -14,9 +14,7 @@ console.log('starting...');
 import makeWASocket, {
     useMultiFileAuthState,
     DisconnectReason,
-    makeCacheableSignalKeyStore // Ditambahkan untuk auth.keys
 } from "@whiskeysockets/baileys";
-
 // Modul bawaan Node.js
 import fs from 'fs';
 import path, { join } from 'path'; // join dari path
