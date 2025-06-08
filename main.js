@@ -10,44 +10,34 @@
 console.clear();
 console.log('starting...');
 
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason,
-} = require("@whiskeysockets/baileys");
+// WA Socket dan tools
+import makeWASocket, {
+  useMultiFileAuthState,
+  DisconnectReason,
+  makeCacheableSignalKeyStore
+} from "@whiskeysockets/baileys";
 
+// Modul-modul bawaan Node.js
+import fs from 'fs';
+import path from 'path';
+import { tmpdir } from 'os';
+import { exec as execPromise } from 'child_process';
+import readline from 'readline';
+
+// Eksternal dependencies
 import chalk from 'chalk';
+import pino from 'pino';
+import axios from 'axios';
+import moment from 'moment-timezone';
+import fetch from 'node-fetch';
+import fileType from 'file-type';
+import FormData from 'form-data';
+import { Boom } from '@hapi/boom';
 
-const pino = require('pino');
-const readline = require("readline");
-const fs = require('fs');
-const qrcode = require("qrcode-terminal");
-const moment = require("moment-timezone");
-const path = require("path");
-const os = require('os');
-const axios = require('axios');
-const util = require('util');
-const speed = require('performance-now');
-const fetch = require('node-fetch'); // Pastikan node-fetch diimpor di sini
-const fileType = require('file-type'); // Tambahkan import file-type
-
-const {
-    Boom
-} = require('@hapi/boom');
-const {
-    exec: execPromise
-} = require('child_process');
-const {
-    tmpdir
-} = require('os');
-const {
-    writeFileSync,
-    unlinkSync
-} = require('fs');
-const {
-    join
-} = require('path');
-const FormData = require("form-data"); // Untuk fungsi remini
+// Helper path jika butuh __dirname
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 // Global settings - originally from config.js
@@ -623,12 +613,11 @@ async function clientstart() {
 
 clientstart();
 
-let file = require.resolve(__filename);
-require('fs').watchFile(file, () => {
-    require('fs').unwatchFile(file);
+
+watchFile(__filename, () => {
+    unwatchFile(__filename);
     console.log('\x1b[0;32m' + __filename + ' \x1b[1;32mupdated!\x1b[0m');
-    delete require.cache[file];
-    require(file);
+    import(`${pathToFileURL(__filename).href}?update=${Date.now()}`);
 });
 
 
