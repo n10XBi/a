@@ -17,6 +17,7 @@ const {
 } = require("@whiskeysockets/baileys");
 
 import chalk from 'chalk';
+
 const pino = require('pino');
 const readline = require("readline");
 const fs = require('fs');
@@ -474,7 +475,7 @@ async function clientstart() {
             const budy = (typeof m.text === 'string' ? m.text : '');
 
             const prefixRegex = new RegExp(`^(${global.prefix.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`);
-const isCmd = prefixRegex.test(body);
+            const isCmd = prefixRegex.test(body);
 
             const prefix = isCmd ? body.match(prefixRegex)[0] : '';
 
