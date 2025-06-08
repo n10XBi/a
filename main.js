@@ -16,7 +16,7 @@ const {
     DisconnectReason,
 } = require("@whiskeysockets/baileys");
 
-const chalk = require('chalk');
+import chalk from 'chalk';
 const pino = require('pino');
 const readline = require("readline");
 const fs = require('fs');
