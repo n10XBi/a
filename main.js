@@ -28,13 +28,13 @@ const axios = require('axios');
 const util = require('util');
 const speed = require('performance-now');
 const fetch = require('node-fetch'); // Pastikan node-fetch diimpor di sini
+const fileType = require('file-type'); // Tambahkan import file-type
 
 const { Boom } = require('@hapi/boom');
 const { exec: execPromise } = require('child_process');
 const { tmpdir } = require('os');
 const { writeFileSync, unlinkSync } = require('fs');
 const { join } = require('path');
-const fileType = require('file-type');
 const FormData = require("form-data"); // Untuk fungsi remini
 
 
@@ -256,7 +256,9 @@ async function ytmp3(url) {
 
 
 // Fungsi sendImageAsSticker dan sendVideoAsSticker (dari Baileys/helper, dipindahkan ke sini)
-async function sendImageAsSticker(client, jid, path, quoted, options = {}) {
+// Mengubah fungsi ini agar tidak menerima 'client' sebagai parameter pertama
+// dan menggunakan 'this.sendMessage'
+async function sendImageAsSticker(jid, path, quoted, options = {}) {
     let buff = Buffer.isBuffer(path) ? path : await getBuffer(path);
     let fakemsg = quoted && quoted.key ? quoted : {};
     let mime = (await fileType.fromBuffer(buff)).mime;
@@ -267,11 +269,11 @@ async function sendImageAsSticker(client, jid, path, quoted, options = {}) {
     return new Promise(async (resolve, reject) => {
         try {
             if (options.packname && options.author) {
-                await execPromise(`ffmpeg -i ${filename} -vcodec libwebp -vf \"scale='min(320,iw)':min(320,ih)':force_original_aspect_ratio=decrease,format=rgba,pad=320:320:'(ow-iw)/2':'(oh-ih)/2':'#00000000',setsar=1,fps=15\" -lossless 1 -qscale 1 -preset default -an -vsync 0 -s 320x320 -webp_metadata clear -loop 0 -af volume=0 -compression_level 6 -metadata:s webp:emojifile -metadata:s webp:json -metadata:s webp:android.packname='${options.packname}' -metadata:s webp:android.author='${options.author}' ${stickerPath}`);
+                await execPromise(`ffmpeg -i ${filename} -vcodec libwebp -vf \"scale='min(320,iw)':min(320,ih)':force_original_aspect_ratio=decrease,format=rgba,pad=320:320:'(ow-iw)/2':'(oh-ih)/2':'#00000000',setsar=1,fps=15\" -lossless 1 -qscale 1 -preset default -an -vsync 0 -s 320x320 -webp_metadata clear -loop 0 -af volume=0 -compression_level 6 -metadata:s webp:android.packname='${options.packname}' -metadata:s webp:android.author='${options.author}' ${stickerPath}`);
             } else {
                 await execPromise(`ffmpeg -i ${filename} -vcodec libwebp -vf \"scale='min(320,iw)':min(320,ih)':force_original_aspect_ratio=decrease,format=rgba,pad=320:320:'(ow-iw)/2':'(oh-ih)/2':'#00000000',setsar=1,fps=15\" -lossless 1 -qscale 1 -preset default -an -vsync 0 -s 320x320 -webp_metadata clear -loop 0 -af volume=0 -compression_level 6 ${stickerPath}`);
             }
-            let res = await client.sendMessage(jid, { sticker: { url: stickerPath } }, { quoted: fakemsg });
+            let res = await this.sendMessage(jid, { sticker: { url: stickerPath } }, { quoted: fakemsg });
             unlinkSync(filename);
             unlinkSync(stickerPath);
             resolve(res);
@@ -281,7 +283,7 @@ async function sendImageAsSticker(client, jid, path, quoted, options = {}) {
     });
 }
 
-async function sendVideoAsSticker(client, jid, path, quoted, options = {}) {
+async function sendVideoAsSticker(jid, path, quoted, options = {}) {
     let buff = Buffer.isBuffer(path) ? path : await getBuffer(path);
     let fakemsg = quoted && quoted.key ? quoted : {};
     let filename = join(tmpdir(), `${Math.random().toString(36).substring(2, 7)}.mp4`);
@@ -291,7 +293,7 @@ async function sendVideoAsSticker(client, jid, path, quoted, options = {}) {
     return new Promise(async (resolve, reject) => {
         try {
             await execPromise(`ffmpeg -i ${filename} -vcodec libwebp -vf \"scale='min(320,iw)':min(320,ih)':force_original_aspect_ratio=decrease,format=rgba,pad=320:320:'(ow-iw)/2':'(oh-ih)/2':'#00000000',setsar=1,fps=15\" -pix_fmt yuva420p -lossless 1 -qscale 1 -preset default -an -vsync 0 -s 320x320 -webp_metadata clear -loop 0 -af volume=0 -compression_level 6 -metadata:s webp:emojifile -metadata:s webp:json -metadata:s webp:android.packname='${options.packname || ''}' -metadata:s webp:android.author='${options.author || ''}' ${stickerPath}`);
-            let res = await client.sendMessage(jid, { sticker: { url: stickerPath } }, { quoted: fakemsg });
+            let res = await this.sendMessage(jid, { sticker: { url: stickerPath } }, { quoted: fakemsg });
             unlinkSync(filename);
             unlinkSync(stickerPath);
             resolve(res);
@@ -341,13 +343,13 @@ async function clientstart() {
         }
     });
 
-    // PENTING: Pindahkan baris Object.assign di sini
+    // PENTING: Pindahkan baris Object.assign di sini dan ubah ke 'client'
     const clientExtension = {
         sendImageAsSticker,
         sendVideoAsSticker,
         // ... bisa ditambahkan fungsi-fungsi lain dari myfunction.js
     };
-    Object.assign(makeWASocket.prototype, clientExtension);
+    Object.assign(client, clientExtension); // DIUBAH DARI makeWASocket.prototype ke client
 
 
     if (usePairingCode && !client.authState.creds.registered) {
