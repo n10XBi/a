@@ -30,11 +30,22 @@ const speed = require('performance-now');
 const fetch = require('node-fetch'); // Pastikan node-fetch diimpor di sini
 const fileType = require('file-type'); // Tambahkan import file-type
 
-const { Boom } = require('@hapi/boom');
-const { exec: execPromise } = require('child_process');
-const { tmpdir } = require('os');
-const { writeFileSync, unlinkSync } = require('fs');
-const { join } = require('path');
+const {
+    Boom
+} = require('@hapi/boom');
+const {
+    exec: execPromise
+} = require('child_process');
+const {
+    tmpdir
+} = require('os');
+const {
+    writeFileSync,
+    unlinkSync
+} = require('fs');
+const {
+    join
+} = require('path');
 const FormData = require("form-data"); // Untuk fungsi remini
 
 
@@ -86,8 +97,8 @@ function runtime(seconds) {
 }
 
 function tanggal(numer) {
-    const myMonths = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-    const myDays = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const myMonths = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const myDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     let d = new Date(numer);
     let day = d.getDate();
     let month = d.getMonth();
@@ -100,22 +111,22 @@ function tanggal(numer) {
 }
 
 async function getBuffer(url, options) {
-	try {
-		options ? options : {}
-		const res = await axios({
-			method: "get",
-			url,
-			headers: {
-				'DNT': 1,
-				'Upgrade-Insecure-Request': 1
-			},
-			...options,
-			responseType: 'arraybuffer'
-		})
-		return res.data
-	} catch (e) {
-		console.log(`Error : ${e}`)
-	}
+    try {
+        options ? options : {}
+        const res = await axios({
+            method: "get",
+            url,
+            headers: {
+                'DNT': 1,
+                'Upgrade-Insecure-Request': 1
+            },
+            ...options,
+            responseType: 'arraybuffer'
+        })
+        return res.data
+    } catch (e) {
+        console.log(`Error : ${e}`)
+    }
 }
 
 const isUrl = (url) => {
@@ -142,115 +153,126 @@ const getContentType = (message) => {
 
 // Fungsi remini (dari remini.js)
 async function remini(urlPath, method) {
-	return new Promise(async (resolve, reject) => {
-		let Methods = ["enhance", "recolor", "dehaze"];
-		Methods.includes(method) ? (method = method) : (method = Methods[0]);
-		let buffer,
-			Form = new FormData(),
-			scheme = "https" + "://" + "inferenceengine" + ".vyro" + ".ai/" + method;
-		Form.append("model_version", 1, {
-			"Content-Transfer-Encoding": "binary",
-			contentType: "multipart/form-data; charset=uttf-8",
-		});
-		Form.append("image", Buffer.from(urlPath), {
-			filename: "enhance_image_body.jpg",
-			contentType: "image/jpeg",
-		});
-		Form.submit(
-			{
-				url: scheme,
-				host: "inferenceengine" + ".vyro" + ".ai",
-				path: "/" + method,
-				protocol: "https:",
-				headers: {
-					"User-Agent": "okhttp/4.9.3",
-					Connection: "Keep-Alive",
-					"Accept-Encoding": "gzip",
-				},
-			},
-			function (err, res) {
-				if (err) return reject(err);
-				const chunks = [];
-				res.on("data", function (chunk) {
-					chunks.push(chunk);
-				});
-				res.on("end", function () {
-					buffer = Buffer.concat(chunks);
-					resolve(buffer);
-				});
-				res.on("error", function (err) {
-					reject(err);
-				});
-			}
-		);
-	});
+    return new Promise(async (resolve, reject) => {
+        let Methods = ["enhance", "recolor", "dehaze"];
+        Methods.includes(method) ? (method = method) : (method = Methods[0]);
+        let buffer,
+            Form = new FormData(),
+            scheme = "https" + "://" + "inferenceengine" + ".vyro" + ".ai/" + method;
+        Form.append("model_version", 1, {
+            "Content-Transfer-Encoding": "binary",
+            contentType: "multipart/form-data; charset=uttf-8",
+        });
+        Form.append("image", Buffer.from(urlPath), {
+            filename: "enhance_image_body.jpg",
+            contentType: "image/jpeg",
+        });
+        Form.submit({
+                url: scheme,
+                host: "inferenceengine" + ".vyro" + ".ai",
+                path: "/" + method,
+                protocol: "https:",
+                headers: {
+                    "User-Agent": "okhttp/4.9.3",
+                    Connection: "Keep-Alive",
+                    "Accept-Encoding": "gzip",
+                },
+            },
+            function(err, res) {
+                if (err) return reject(err);
+                const chunks = [];
+                res.on("data", function(chunk) {
+                    chunks.push(chunk);
+                });
+                res.on("end", function() {
+                    buffer = Buffer.concat(chunks);
+                    resolve(buffer);
+                });
+                res.on("error", function(err) {
+                    reject(err);
+                });
+            }
+        );
+    });
 }
 
 // Fungsi igdl (dari igdl.js)
 async function igdl(query) {
-  try {
-    const response = await fetch(`https://api.siputzx.my.id/api/d/igdl?url=${query}`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
+    try {
+        const response = await fetch(`https://api.siputzx.my.id/api/d/igdl?url=${query}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        return error;
+    }
 }
 
 // Fungsi ytmp3 (dari ytmp3.js)
 async function ytmp3(url) {
     const headers = {
-      "accept": "*/*",
-      "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
-      "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"",
-      "sec-ch-ua-mobile": "?1",
-      "sec-ch-ua-platform": "\"Android\"",
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      "Referer": "https://id.ytmp3.mobi/",
-      "Referrer-Policy": "strict-origin-when-cross-origin"
+        "accept": "*/*",
+        "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
+        "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"",
+        "sec-ch-ua-mobile": "?1",
+        "sec-ch-ua-platform": "\"Android\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "cross-site",
+        "Referer": "https://id.ytmp3.mobi/",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
     };
 
-    const initial = await fetch(`https://d8.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers });
+    const initial = await fetch(`https://d8.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, {
+        headers
+    });
     const init = await initial.json();
 
     const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
 
     const getDownloadURL = async (format) => {
-      let convertURL = init.convertURL + `&v=${id}&f=${format}&_=${Math.random()}`;
-      const converts = await fetch(convertURL, { headers });
-      const convert = await converts.json();
+        let convertURL = init.convertURL + `&v=${id}&f=${format}&_=${Math.random()}`;
+        const converts = await fetch(convertURL, {
+            headers
+        });
+        const convert = await converts.json();
 
-      if (convert.error !== 0) {
-        throw new Error("Gagal mendapatkan URL konversi");
-      }
+        if (convert.error !== 0) {
+            throw new Error("Gagal mendapatkan URL konversi");
+        }
 
-      let info = {};
-      for (let i = 0; i < 5; i++) {
-        const j = await fetch(convert.progressURL, { headers });
-        info = await j.json();
-        if (info.progress === 3) break;
-        await new Promise(res => setTimeout(res, 2000));
-      }
+        let info = {};
+        for (let i = 0; i < 5; i++) {
+            const j = await fetch(convert.progressURL, {
+                headers
+            });
+            info = await j.json();
+            if (info.progress === 3) break;
+            await new Promise(res => setTimeout(res, 2000));
+        }
 
-      if (info.progress !== 3) {
-        throw new Error("Konversi gagal atau terlalu lama");
-      }
+        if (info.progress !== 3) {
+            throw new Error("Konversi gagal atau terlalu lama");
+        }
 
-      return {
-        url: info.downloadURL,
-        title: info.title
-      };
+        return {
+            url: info.downloadURL,
+            title: info.title
+        };
     };
 
     try {
-      const audio = await getDownloadURL("mp3");
-      return { status: true, data: audio };
+        const audio = await getDownloadURL("mp3");
+        return {
+            status: true,
+            data: audio
+        };
     } catch (e) {
-      console.error(e);
-      return { status: false, message: e.message };
+        console.error(e);
+        return {
+            status: false,
+            message: e.message
+        };
     }
 }
 
@@ -273,7 +295,13 @@ async function sendImageAsSticker(jid, path, quoted, options = {}) {
             } else {
                 await execPromise(`ffmpeg -i ${filename} -vcodec libwebp -vf \"scale='min(320,iw)':min(320,ih)':force_original_aspect_ratio=decrease,format=rgba,pad=320:320:'(ow-iw)/2':'(oh-ih)/2':'#00000000',setsar=1,fps=15\" -lossless 1 -qscale 1 -preset default -an -vsync 0 -s 320x320 -webp_metadata clear -loop 0 -af volume=0 -compression_level 6 ${stickerPath}`);
             }
-            let res = await this.sendMessage(jid, { sticker: { url: stickerPath } }, { quoted: fakemsg });
+            let res = await this.sendMessage(jid, {
+                sticker: {
+                    url: stickerPath
+                }
+            }, {
+                quoted: fakemsg
+            });
             unlinkSync(filename);
             unlinkSync(stickerPath);
             resolve(res);
@@ -293,7 +321,13 @@ async function sendVideoAsSticker(jid, path, quoted, options = {}) {
     return new Promise(async (resolve, reject) => {
         try {
             await execPromise(`ffmpeg -i ${filename} -vcodec libwebp -vf \"scale='min(320,iw)':min(320,ih)':force_original_aspect_ratio=decrease,format=rgba,pad=320:320:'(ow-iw)/2':'(oh-ih)/2':'#00000000',setsar=1,fps=15\" -pix_fmt yuva420p -lossless 1 -qscale 1 -preset default -an -vsync 0 -s 320x320 -webp_metadata clear -loop 0 -af volume=0 -compression_level 6 -metadata:s webp:emojifile -metadata:s webp:json -metadata:s webp:android.packname='${options.packname || ''}' -metadata:s webp:android.author='${options.author || ''}' ${stickerPath}`);
-            let res = await this.sendMessage(jid, { sticker: { url: stickerPath } }, { quoted: fakemsg });
+            let res = await this.sendMessage(jid, {
+                sticker: {
+                    url: stickerPath
+                }
+            }, {
+                quoted: fakemsg
+            });
             unlinkSync(filename);
             unlinkSync(stickerPath);
             resolve(res);
@@ -353,19 +387,26 @@ async function clientstart() {
 
 
     if (usePairingCode && !client.authState.creds.registered) {
-        const phoneNumber = global.owner;
+        const phoneNumber = await question(chalk.blue.bold('Masukkan nomor WhatsApp kamu:\n'));
         const code = await client.requestPairingCode(phoneNumber, global.pairing);
+
         console.log(`${chalk.blue.bold('Pairing code:')} : ${chalk.white.bold(code)}`);
     } else if (!usePairingCode && !client.authState.creds.registered) {
         // Fallback to QR code if not using pairing code and not registered
         client.on('qr', qr => {
             console.log(chalk.yellow.bold('Scan this QR code:'));
-            qrcode.generate(qr, { small: true });
+            qrcode.generate(qr, {
+                small: true
+            });
         });
     }
 
     client.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect, qr } = update;
+        const {
+            connection,
+            lastDisconnect,
+            qr
+        } = update;
         if (connection === 'close') {
             let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
             if (reason === DisconnectReason.badSession) {
@@ -382,7 +423,10 @@ async function clientstart() {
                 clientstart();
             } else if (reason === DisconnectReason.loggedOut) {
                 console.log(`Device Logged Out, Please Delete Session and Scan Again.`);
-                fs.rmSync('./session', { recursive: true, force: true });
+                fs.rmSync('./session', {
+                    recursive: true,
+                    force: true
+                });
                 clientstart();
             } else if (reason === DisconnectReason.restartRequired) {
                 console.log("Restart Required, Restarting...");
@@ -519,14 +563,50 @@ async function clientstart() {
 
             // Variabel context untuk case.js
             const context = {
-                m, quoted, body, budy, command, args, q, isCmd, pushname, isGroup, sender,
-                botNumber, isCreator, groupId: from, groupMetadata, groupName, participants,
-                groupAdmins, isBotAdmin, isGroupAdmin, isOwner, Access, reply, store,
-                util, fs, os, fetch, moment, chalk, tanggal, getBuffer, axios,
-                runtime, formatp: formatSize, isUrl,
-                execPromise, exec, execSync, getContentType,
+                m,
+                quoted,
+                body,
+                budy,
+                command,
+                args,
+                q,
+                isCmd,
+                pushname,
+                isGroup,
+                sender,
+                botNumber,
+                isCreator,
+                groupId: from,
+                groupMetadata,
+                groupName,
+                participants,
+                groupAdmins,
+                isBotAdmin,
+                isGroupAdmin,
+                isOwner,
+                Access,
+                reply,
+                store,
+                util,
+                fs,
+                os,
+                fetch,
+                moment,
+                chalk,
+                tanggal,
+                getBuffer,
+                axios,
+                runtime,
+                formatp: formatSize,
+                isUrl,
+                execPromise,
+                exec,
+                execSync,
+                getContentType,
                 dino: client,
-                remini, igdl, ytmp3
+                remini,
+                igdl,
+                ytmp3
             };
 
             // Panggil handleCaseCommands
@@ -553,12 +633,49 @@ require('fs').watchFile(file, () => {
 async function handleCaseCommands(dino, context) {
     try {
         const {
-            m, quoted, body, budy, command, args, q, isCmd, pushname, isGroup, sender,
-            botNumber, isCreator, groupId, groupMetadata, groupName, participants,
-            groupAdmins, isBotAdmin, isGroupAdmin, isOwner, Access, reply, store,
-            util, fs, os, fetch, moment, chalk, tanggal, getBuffer, axios,
-            runtime, formatp, isUrl, spawn, exec, execSync, getContentType,
-            remini, igdl, ytmp3
+            m,
+            quoted,
+            body,
+            budy,
+            command,
+            args,
+            q,
+            isCmd,
+            pushname,
+            isGroup,
+            sender,
+            botNumber,
+            isCreator,
+            groupId,
+            groupMetadata,
+            groupName,
+            participants,
+            groupAdmins,
+            isBotAdmin,
+            isGroupAdmin,
+            isOwner,
+            Access,
+            reply,
+            store,
+            util,
+            fs,
+            os,
+            fetch,
+            moment,
+            chalk,
+            tanggal,
+            getBuffer,
+            axios,
+            runtime,
+            formatp,
+            isUrl,
+            spawn,
+            exec,
+            execSync,
+            getContentType,
+            remini,
+            igdl,
+            ytmp3
         } = context;
 
         const prefix = global.prefix[0];
@@ -627,7 +744,10 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 break;
 
             case 'owner':
-                const ownerList = global.ownerList.map(num => ({ jid: num, name: `Owner ${global.namaowner}` }));
+                const ownerList = global.ownerList.map(num => ({
+                    jid: num,
+                    name: `Owner ${global.namaowner}`
+                }));
                 dino.sendContact(from, ownerList, m);
                 break;
 
@@ -717,7 +837,10 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 if (!isGroup) return reply(global.mess.group);
                 if (!isGroupAdmin && !isCreator) return reply(global.mess.admin);
                 let memberMentions = participants.map(v => v.id);
-                dino.sendMessage(from, { text : q ? q : '', mentions: memberMentions });
+                dino.sendMessage(from, {
+                    text: q ? q : '',
+                    mentions: memberMentions
+                });
                 break;
 
             case 'group':
@@ -803,7 +926,12 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                     teks += `╠➥ @${mem.id.split('@')[0]}\n`
                 }
                 teks += `╚═〘 ${groupName} 〘`
-                dino.sendMessage(from, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m });
+                dino.sendMessage(from, {
+                    text: teks,
+                    mentions: participants.map(a => a.id)
+                }, {
+                    quoted: m
+                });
                 break;
 
             case 'sticker':
@@ -812,7 +940,10 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
             case 'stiker':
                 if ((m.mtype === 'imageMessage' || m.mtype === 'videoMessage') || m.quoted) {
                     let media = await quoted.download();
-                    let stickerOptions = { packname: global.packname, author: global.author };
+                    let stickerOptions = {
+                        packname: global.packname,
+                        author: global.author
+                    };
                     if (m.mtype === 'videoMessage' || (m.quoted && m.quoted.mtype === 'videoMessage')) {
                         await dino.sendVideoAsSticker(from, media, m, stickerOptions);
                     } else {
@@ -835,7 +966,10 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
 
                 if (quoted.isAnimated || (m.quoted && m.quoted.mtype === 'videoMessage')) {
                     let media = await quoted.download();
-                    await dino.sendVideoAsSticker(m.chat, media, m, { packname: pcknm, author: atnm });
+                    await dino.sendVideoAsSticker(m.chat, media, m, {
+                        packname: pcknm,
+                        author: atnm
+                    });
                 } else if (/image/.test(mime) || (m.quoted && m.quoted.mtype === 'imageMessage')) {
                     let media = await quoted.download()
                     await dino.sendImageAsSticker(m.chat, media, m, {
@@ -859,7 +993,11 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
             case 'timg':
                 if ((m.mtype === 'stickerMessage' || (m.quoted && m.quoted.mtype === 'stickerMessage'))) {
                     let media = await quoted.download();
-                    await dino.sendMessage(from, { image: media }, { quoted: m });
+                    await dino.sendMessage(from, {
+                        image: media
+                    }, {
+                        quoted: m
+                    });
                 } else {
                     reply('Reply stikernya yaa sayangkuu! 🥺');
                 }
@@ -873,7 +1011,15 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                     await reaction(m.chat, "⏳");
                     let res = await ytmp3(q);
                     if (res.status && res.data.url) {
-                        await dino.sendMessage(from, { audio: { url: res.data.url }, mimetype: 'audio/mpeg', fileName: `${res.data.title}.mp3` }, { quoted: m });
+                        await dino.sendMessage(from, {
+                            audio: {
+                                url: res.data.url
+                            },
+                            mimetype: 'audio/mpeg',
+                            fileName: `${res.data.title}.mp3`
+                        }, {
+                            quoted: m
+                        });
                         reply(`Berhasil mengunduh MP3 dari YouTube, cintakku! Judul: ${res.data.title}`);
                         await reaction(m.chat, "✅");
                     } else {
@@ -887,7 +1033,7 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 }
                 break;
 
-            // TODO: Implement ytmp4, play, tiktok, ig
+                // TODO: Implement ytmp4, play, tiktok, ig
 
             case 'ig':
             case 'instagram':
@@ -900,9 +1046,21 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                     if (res.status && res.data.length > 0) {
                         for (let media of res.data) {
                             if (media.type === 'image') {
-                                await dino.sendMessage(from, { image: { url: media.url } }, { quoted: m });
+                                await dino.sendMessage(from, {
+                                    image: {
+                                        url: media.url
+                                    }
+                                }, {
+                                    quoted: m
+                                });
                             } else if (media.type === 'video') {
-                                await dino.sendMessage(from, { video: { url: media.url } }, { quoted: m });
+                                await dino.sendMessage(from, {
+                                    video: {
+                                        url: media.url
+                                    }
+                                }, {
+                                    quoted: m
+                                });
                             }
                         }
                         reply('Sudah selesai diunduh, duniakuu! ✨');
@@ -952,7 +1110,9 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
             case "get": {
                 if (!Access) return reply(global.mess.owner)
                 if (!isUrl(q)) return reply(`\n*ex:* ${prefix + command} https://api.pediakuu.web.id\n`);
-                const ajg = await axios.get(q, {responseType: 'arraybuffer'});
+                const ajg = await axios.get(q, {
+                    responseType: 'arraybuffer'
+                });
 
                 if (ajg.headers['content-length'] > 100 * 1024 * 1024) {
                     throw `Content-Length: ${ajg.headers['content-length']}`;
@@ -1036,7 +1196,9 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                         let apiUrl = `https://www.laurine.site/api/tts/elevenlabs?text=${encodeURIComponent(resultText)}&apiKey=${global.KEY}&voiceId=${global.IDVOICE}`;
                         let {
                             data
-                        } = await axios.get(apiUrl, {responseType: 'arraybuffer'});
+                        } = await axios.get(apiUrl, {
+                            responseType: 'arraybuffer'
+                        });
                         let buffer = Buffer.from(data.data);
                         await dino.sendMessage(m.chat, {
                             audio: buffer,
@@ -1071,7 +1233,12 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                 try {
                     const This = await remini(img, "enhance");
                     await reaction(m.chat, "✅");
-                    dino.sendMessage(m.chat, {image: This, caption: "```success...```"}, {quoted: m});
+                    dino.sendMessage(m.chat, {
+                        image: This,
+                        caption: "```success...```"
+                    }, {
+                        quoted: m
+                    });
                 } catch (er) {
                     error = true;
                 } finally {
@@ -1090,12 +1257,13 @@ Semoga bermanfaat yaa sayangkuu! Jangan lupa maem dulu sana! 🥺💙
                     reply(`G3N⫹⫺ siap melayani yuwwww, cintakku! 😊`);
                 }
 
-                if ((budy.match) && ["Assalamualaikum", "assalamualaikum", "Assalamu'alaikum",].includes(budy)) {
+                if ((budy.match) && ["Assalamualaikum", "assalamualaikum", "Assalamu'alaikum", ].includes(budy)) {
                     reply(`Waalaikumsalam ${pushname} sayangkuu! 🥺`);
                 }
 
                 if (budy.startsWith('=>')) {
                     if (!isCreator) return;
+
                     function Return(sul) {
                         sat = JSON.stringify(sul, null, 2);
                         bang = util.format(sat);
